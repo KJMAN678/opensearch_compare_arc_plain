@@ -22,7 +22,7 @@ class GeoDistanceService:
                     'port': settings.OPENSEARCH_PORT
                 }],
                 http_auth=(settings.OPENSEARCH_USERNAME, settings.OPENSEARCH_PASSWORD),
-                use_ssl=False,
+                use_ssl=True,
                 verify_certs=False,
                 ssl_assert_hostname=False,
                 ssl_show_warn=False,
