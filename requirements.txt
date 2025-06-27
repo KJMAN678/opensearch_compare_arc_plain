@@ -1,0 +1,5 @@
+pytest==8.4.0
+ruff==0.11.13
+Django==5.2.3
+asgiref==3.8.1
+sqlparse==0.5.3
