@@ -1,0 +1,56 @@
+services:
+  opensearch:
+    build:
+      context: ./opensearch
+    container_name: opensearch
+    environment:
+      discovery.type: single-node
+      OPENSEARCH_JAVA_OPTS: -Xms512m -Xmx512m
+      path.repo: /usr/share/opensearch/config/backup
+      # plugins.security.allow_default_init_securityindex: true
+      OPENSEARCH_INITIAL_ADMIN_USERNAME: admin
+      OPENSEARCH_INITIAL_ADMIN_PASSWORD: ${OPENSEARCH_INITIAL_ADMIN_PASSWORD}
+      DISABLE_INSTALL_DEMO_CONFIG: false
+    ports:
+      - 9200:9200
+    networks:
+      - opensearch-net
+
+  web:
+    build:
+      context: ./web
+    volumes:
+      - ./web:/app/web
+    ports:
+      - "8000:8000"
+    environment:
+      - "DJANGO_SUPERUSER_PASSWORD=${DJANGO_SUPERUSER_PASSWORD}"
+      - "DJANGO_SUPERUSER_USERNAME=${DJANGO_SUPERUSER_USERNAME}"
+      - "DJANGO_SUPERUSER_EMAIL=${DJANGO_SUPERUSER_EMAIL}"
+      - "SECRET_KEY=${SECRET_KEY}"
+      - "OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_INITIAL_ADMIN_PASSWORD}"
+    command: uv run manage.py runserver 0.0.0.0:8000
+    depends_on:
+      - db
+    networks:
+      - opensearch-net
+
+  db:
+    image: postgres:17
+    ports:
+        - "5432"
+    environment:
+      - "POSTGRES_DB=postgres"
+      - "POSTGRES_USER=postgres"
+      - "POSTGRES_PASSWORD=postgres"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - opensearch-net
+
+networks:
+  opensearch-net:
+    driver: bridge

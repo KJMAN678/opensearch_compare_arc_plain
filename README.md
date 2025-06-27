@@ -1,3 +1,24 @@
+### 起動
+
+```sh
+$ touch .envrc
+
+export OPENSEARCH_INITIAL_ADMIN_PASSWORD=hoge
+export DJANGO_SUPERUSER_USERNAME=hoge
+export DJANGO_SUPERUSER_EMAIL=hoge@hoge.com
+export DJANGO_SUPERUSER_PASSWORD=hoge
+export SECRET_KEY=hoge
+```
+
+```sh
+$ direnv allow
+
+$ docker compose up -d
+$ docker compose down
+$ docker compose build
+```
+
+
 ### Devin
 
 - [Devin's Machine](https://app.devin.ai/workspace) でリポジトリ追加
@@ -12,9 +33,11 @@ $ touch .envrc
 
 # .envrc に下記を入力. xxx は適宜更新
 
-export DJANGO_SUPERUSER_USERNAME=xxx
-export DJANGO_SUPERUSER_EMAIL=xxx@xxx.com
-export DJANGO_SUPERUSER_PASSWORD=xxx
+export OPENSEARCH_INITIAL_ADMIN_PASSWORD=hoge
+export DJANGO_SUPERUSER_USERNAME=hoge
+export DJANGO_SUPERUSER_EMAIL=hoge@hoge.com
+export DJANGO_SUPERUSER_PASSWORD=hoge
+export SECRET_KEY=hoge
 
 # 環境変数を読み込む
 $ direnv allow
@@ -26,18 +49,18 @@ $ brew install direnv
 ```
 #### 4.Maintain Dependencies
 ```sh
-$ uv venv && . .venv/bin/activate && uv pip install -U pip && uv pip sync requirements.txt
+$ docker compose up -d
 ```
 
 #### 5.SetUp Lint
 ```sh
-$ uvx ruff check
+$ docker compose run --rm web uv run ruff check
 ```
 
 #### 6.SetUp Tests
 - no tests ran in 0.00s だと Devin の Verify が通らないっぽい
 ```sh
-$ uvx pytest
+$ docker compose run --rm web uv run pytest
 ```
 
 ### 7.Setup Local App
@@ -46,10 +69,10 @@ $ uvx pytest
 $ Run uv run manage.py migrate && uv run manage.py createsuperuser --noinput && uv run python manage.py runserver
 $ http://127.0.0.1:8000/ がローカルサーバーのURL
 
-$ uv run manage.py makemigrations
-$ uv run manage.py migrate
-$ uv run manage.py createsuperuser --noinput
-$ uv run python manage.py runserver
+$ docker compose run --rm web uv run manage.py makemigrations
+$ docker compose run --rm web uv run manage.py migrate
+$ docker compose run --rm web uv run manage.py createsuperuser --noinput
+$ docker compose run --rm web uv run manage.py runserver
 ```
 http://127.0.0.1:8000/
 
