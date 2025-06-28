@@ -7,7 +7,7 @@ class GeoDistanceForm(forms.Form):
         min_value=-90, 
         max_value=90,
         widget=forms.NumberInput(attrs={
-            'step': 'any', 
+            'step': '0.001', 
             'placeholder': '例: 35.6762',
             'class': 'form-control'
         }),
@@ -18,7 +18,7 @@ class GeoDistanceForm(forms.Form):
         min_value=-180, 
         max_value=180,
         widget=forms.NumberInput(attrs={
-            'step': 'any', 
+            'step': '0.001', 
             'placeholder': '例: 139.6503',
             'class': 'form-control'
         }),
@@ -29,7 +29,7 @@ class GeoDistanceForm(forms.Form):
         min_value=-90, 
         max_value=90,
         widget=forms.NumberInput(attrs={
-            'step': 'any', 
+            'step': '0.001', 
             'placeholder': '例: 34.6937',
             'class': 'form-control'
         }),
@@ -40,7 +40,7 @@ class GeoDistanceForm(forms.Form):
         min_value=-180, 
         max_value=180,
         widget=forms.NumberInput(attrs={
-            'step': 'any', 
+            'step': '0.001', 
             'placeholder': '例: 135.5023',
             'class': 'form-control'
         }),
