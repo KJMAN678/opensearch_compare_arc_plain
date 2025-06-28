@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>距離計算結果 - OpenSearch Geo Distance</title>
+    <style>
+        body {
+            font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .coordinates-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+        }
+        .coordinates-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .coordinate-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .coordinate-label {
+            font-weight: bold;
+            color: #555;
+        }
+        .coordinate-value {
+            color: #333;
+            font-family: monospace;
+        }
+        .results-section {
+            margin-bottom: 30px;
+        }
+        .result-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 15px;
+            background-color: #fafafa;
+        }
+        .result-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .arc-result {
+            border-left: 4px solid #28a745;
+        }
+        .arc-result .result-title {
+            color: #28a745;
+        }
+        .plain-result {
+            border-left: 4px solid #007bff;
+        }
+        .plain-result .result-title {
+            color: #007bff;
+        }
+        .difference-result {
+            border-left: 4px solid #ffc107;
+            background-color: #fff8e1;
+        }
+        .difference-result .result-title {
+            color: #f57c00;
+        }
+        .distance-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .distance-unit {
+            font-size: 16px;
+            color: #666;
+        }
+        .description {
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .back-btn {
+            background-color: #6c757d;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+        .back-btn:hover {
+            background-color: #545b62;
+            text-decoration: none;
+            color: white;
+        }
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .summary-table th,
+        .summary-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .summary-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #333;
+        }
+        .summary-table tr:hover {
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>距離計算結果</h1>
+
+        <div class="coordinates-section">
+            <div class="coordinates-title">入力座標</div>
+            <div class="coordinate-row">
+                <span class="coordinate-label">A地点:</span>
+                <span class="coordinate-value">緯度 {{ a_point.lat }}°, 経度 {{ a_point.lon }}°</span>
+            </div>
+            <div class="coordinate-row">
+                <span class="coordinate-label">B地点:</span>
+                <span class="coordinate-value">緯度 {{ b_point.lat }}°, 経度 {{ b_point.lon }}°</span>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <div class="result-card arc-result">
+                <div class="result-title">球面距離（Arc Distance）</div>
+                <div class="distance-value">{{ distances.arc_distance_km }} <span class="distance-unit">km</span></div>
+                <div class="description">
+                    地球を球体として計算した実際の距離です。GPS等で使用される正確な距離計算方法です。
+                </div>
+            </div>
+
+            <div class="result-card plain-result">
+                <div class="result-title">平面距離（Plain Distance）</div>
+                <div class="distance-value">{{ distances.plain_distance_km }} <span class="distance-unit">km</span></div>
+                <div class="description">
+                    地球を平面として計算した近似距離です。短距離では球面距離に近い値になります。
+                </div>
+            </div>
+
+            <div class="result-card difference-result">
+                <div class="result-title">距離の差異</div>
+                <div class="distance-value">{{ distances.difference_km }} <span class="distance-unit">km</span></div>
+                <div class="distance-value" style="font-size: 20px; margin-top: 10px;">
+                    {{ distances.difference_percentage }}% <span class="distance-unit">の差</span>
+                </div>
+                <div class="description">
+                    球面距離と平面距離の差です。距離が長くなるほど、また緯度が高くなるほど差が大きくなります。
+                </div>
+            </div>
+        </div>
+
+        <table class="summary-table">
+            <thead>
+                <tr>
+                    <th>計算方法</th>
+                    <th>距離 (km)</th>
+                    <th>説明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>球面距離 (Arc)</strong></td>
+                    <td>{{ distances.arc_distance_km }} km</td>
+                    <td>地球の曲率を考慮した正確な距離</td>
+                </tr>
+                <tr>
+                    <td><strong>平面距離 (Plain)</strong></td>
+                    <td>{{ distances.plain_distance_km }} km</td>
+                    <td>平面上での直線距離の近似値</td>
+                </tr>
+                <tr style="background-color: #fff8e1;">
+                    <td><strong>差異</strong></td>
+                    <td>{{ distances.difference_km }} km ({{ distances.difference_percentage }}%)</td>
+                    <td>球面距離と平面距離の差</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <a href="{% url 'geodistance:geo_distance' %}" class="back-btn">新しい計算を行う</a>
+    </div>
+</body>
+</html>
