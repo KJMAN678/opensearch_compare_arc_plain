@@ -7,7 +7,11 @@ class GeoDistanceForm(forms.Form):
         min_value=-90,
         max_value=90,
         widget=forms.NumberInput(
-            attrs={"step": "any", "placeholder": "例: 35.6762", "class": "form-control"}
+            attrs={
+                "step": "0.001",
+                "placeholder": "例: 35.6762",
+                "class": "form-control",
+            }
         ),
         help_text="緯度は-90度から90度の範囲で入力してください",
     )
@@ -17,7 +21,7 @@ class GeoDistanceForm(forms.Form):
         max_value=180,
         widget=forms.NumberInput(
             attrs={
-                "step": "any",
+                "step": "0.001",
                 "placeholder": "例: 139.6503",
                 "class": "form-control",
             }
