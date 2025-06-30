@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 class GeoDistanceService:
     """
     OpenSearchを使用してgeo distance計算を行うサービスクラス
-    arc（球面距離）とplain（平面距離）の両方を計算する
+    arc（球面距離）とplane（平面距離）の両方を計算する
     """
 
     def __init__(self):
@@ -75,7 +75,7 @@ class GeoDistanceService:
         self, a_lat: float, a_lon: float, b_lat: float, b_lon: float
     ) -> Dict:
         """
-        A地点とB地点間の距離をarc（球面距離）とplain（平面距離）で計算
+        A地点とB地点間の距離をarc（球面距離）とplane（平面距離）で計算
 
         Args:
             a_lat: A地点の緯度
@@ -89,7 +89,7 @@ class GeoDistanceService:
         result = {
             "success": False,
             "arc_distance_km": None,
-            "plain_distance_km": None,
+            "plane_distance_km": None,
             "difference_km": None,
             "difference_percentage": None,
             "error_message": None,
@@ -113,12 +113,12 @@ class GeoDistanceService:
                 result["error_message"] = "arc距離の計算に失敗しました"
                 return result
 
-            plain_distance = self._calculate_distance_with_type(b_lat, b_lon, "plain")
-            if plain_distance is None:
-                result["error_message"] = "plain距離の計算に失敗しました"
+            plane_distance = self._calculate_distance_with_type(b_lat, b_lon, "plane")
+            if plane_distance is None:
+                result["error_message"] = "plane距離の計算に失敗しました"
                 return result
 
-            difference = abs(arc_distance - plain_distance)
+            difference = abs(arc_distance - plane_distance)
             difference_percentage = (
                 (difference / arc_distance * 100) if arc_distance > 0 else 0
             )
@@ -127,7 +127,7 @@ class GeoDistanceService:
                 {
                     "success": True,
                     "arc_distance_km": round(arc_distance, 3),
-                    "plain_distance_km": round(plain_distance, 3),
+                    "plane_distance_km": round(plane_distance, 3),
                     "difference_km": round(difference, 3),
                     "difference_percentage": round(difference_percentage, 2),
                 }
@@ -148,7 +148,7 @@ class GeoDistanceService:
         Args:
             target_lat: 目標地点の緯度
             target_lon: 目標地点の経度
-            distance_type: "arc" または "plain"
+            distance_type: "arc" または "plane"
 
         Returns:
             Optional[float]: 距離（km）、エラーの場合はNone

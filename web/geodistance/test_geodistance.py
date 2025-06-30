@@ -82,14 +82,14 @@ class GeoDistanceCalculationTest(TestCase):
         
         mock_calculate.side_effect = [
             392.442,  # arc distance
-            392.479   # plain distance
+            392.479   # plane distance
         ]
         
         result = self.service.calculate_distances(35.6762, 139.6503, 34.6937, 135.5023)
         
         self.assertTrue(result['success'])
         self.assertAlmostEqual(result['arc_distance_km'], 392.442, places=1)
-        self.assertAlmostEqual(result['plain_distance_km'], 392.479, places=1)
+        self.assertAlmostEqual(result['plane_distance_km'], 392.479, places=1)
         self.assertLess(result['difference_percentage'], 1.0)  # 差異は1%未満であるべき
     
     @patch.object(GeoDistanceService, '_calculate_distance_with_type')
@@ -97,14 +97,14 @@ class GeoDistanceCalculationTest(TestCase):
         """同一地点間の距離テスト（距離は0であるべき）"""
         mock_calculate.side_effect = [
             0.0,  # arc distance
-            0.0   # plain distance
+            0.0   # plane distance
         ]
         
         result = self.service.calculate_distances(35.6762, 139.6503, 35.6763, 139.6504)
         
         self.assertTrue(result['success'])
         self.assertEqual(result['arc_distance_km'], 0.0)
-        self.assertEqual(result['plain_distance_km'], 0.0)
+        self.assertEqual(result['plane_distance_km'], 0.0)
         self.assertEqual(result['difference_km'], 0.0)
         self.assertEqual(result['difference_percentage'], 0.0)
     
@@ -113,7 +113,7 @@ class GeoDistanceCalculationTest(TestCase):
         """対蹠点間の距離テスト（地球の半周約20,000km）"""
         mock_calculate.side_effect = [
             19985.2,  # arc distance (地球半周)
-            19985.2   # plain distance
+            19985.2   # plane distance
         ]
         
         result = self.service.calculate_distances(35.6762, 139.6503, -35.6762, -40.3497)
@@ -134,7 +134,7 @@ class GeoDistanceCalculationTest(TestCase):
             for lat1, lon1, lat2, lon2, expected, tolerance in known_distances:
                 mock_calc.side_effect = [
                     expected + 0.1,  # arc
-                    expected + 0.2   # plain
+                    expected + 0.2   # plane
                 ]
                 
                 result = self.service.calculate_distances(lat1, lon1, lat2, lon2)
@@ -212,7 +212,7 @@ class GeoDistanceViewTest(TestCase):
         mock_calculate.return_value = {
             'success': True,
             'arc_distance_km': 392.442,
-            'plain_distance_km': 392.479,
+            'plane_distance_km': 392.479,
             'difference_km': 0.037,
             'difference_percentage': 0.01,
             'error_message': None
@@ -252,7 +252,7 @@ class GeoDistanceViewTest(TestCase):
         mock_calculate.return_value = {
             'success': False,
             'arc_distance_km': None,
-            'plain_distance_km': None,
+            'plane_distance_km': None,
             'difference_km': None,
             'difference_percentage': None,
             'error_message': 'OpenSearch接続エラー'
@@ -274,7 +274,7 @@ class GeoDistanceViewTest(TestCase):
 class DistanceAccuracyTest(TestCase):
     """距離計算精度の詳細テスト"""
     
-    def test_arc_vs_plain_difference_patterns(self):
+    def test_arc_vs_plane_difference_patterns(self):
         """球面距離と平面距離の差異パターンテスト"""
         test_cases = [
             ("short_distance", (0.0, 0.1)),    # 100km以下: 差異0.1%以下
@@ -288,7 +288,7 @@ class DistanceAccuracyTest(TestCase):
             mock_calc.return_value = {
                 'success': True,
                 'arc_distance_km': 28.5,
-                'plain_distance_km': 28.5,
+                'plane_distance_km': 28.5,
                 'difference_km': 0.0,
                 'difference_percentage': 0.0,
                 'error_message': None
@@ -299,7 +299,7 @@ class DistanceAccuracyTest(TestCase):
             mock_calc.return_value = {
                 'success': True,
                 'arc_distance_km': 392.442,
-                'plain_distance_km': 392.479,
+                'plane_distance_km': 392.479,
                 'difference_km': 0.037,
                 'difference_percentage': 0.01,
                 'error_message': None
@@ -326,8 +326,8 @@ class RealDistanceCalculationTest(TestCase):
         
         self.assertGreater(result['arc_distance_km'], 380)
         self.assertLess(result['arc_distance_km'], 410)
-        self.assertGreater(result['plain_distance_km'], 380)
-        self.assertLess(result['plain_distance_km'], 410)
+        self.assertGreater(result['plane_distance_km'], 380)
+        self.assertLess(result['plane_distance_km'], 410)
         
         self.assertLess(result['difference_percentage'], 1.0)
     
@@ -341,5 +341,5 @@ class RealDistanceCalculationTest(TestCase):
         
         self.assertTrue(result['success'])
         self.assertEqual(result['arc_distance_km'], 0.0)
-        self.assertEqual(result['plain_distance_km'], 0.0)
+        self.assertEqual(result['plane_distance_km'], 0.0)
         self.assertEqual(result['difference_km'], 0.0)
